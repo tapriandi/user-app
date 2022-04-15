@@ -7,8 +7,9 @@ import Head from "components/Head";
 
 export default function Login() {
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
   const [userLogin, setUserLogin] = useState();
-  const [loading, setLoading] = useState();
+  const [messageLogin, setMessageLogin] = useState({});
   const {
     register,
     handleSubmit,
@@ -26,11 +27,12 @@ export default function Login() {
       localStorage.setItem("password", form.password);
       setLoading(false);
       setUserLogin(log);
-      console.log("login sukses");
+      setMessageLogin({msg:"Login Sukses!", color: 'text-green-400'});
       router.push("/");
     } catch (error) {
       console.log(error);
       setLoading(false);
+      setMessageLogin({msg:"Login Gagal!", color: "text-reed-500"});
     } finally {
       setLoading(false);
     }
@@ -78,6 +80,9 @@ export default function Login() {
           >
             Login
           </button>
+          <span className={`${messageLogin.color} pb-3 pt-1 text-[9px]`}>
+            {messageLogin.msg}
+          </span>
         </form>
       </div>
     </>

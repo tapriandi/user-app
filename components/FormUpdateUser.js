@@ -1,24 +1,61 @@
 import axios from "axios";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import Loader from "components/Loader";
+import { createUser } from "services/users";
 
-export default function FormUser({ title, titleButton }) {
-  const [loading, setLoading] = useState();
+export default function FormUpdateUser({ id, title, titleButton }) {
+  const [loading, setLoading] = useState(false);
+  const [messageUpdateUser, setMessageUpdateUser] = useState({});
+
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm();
 
+  const UpdateUser = async (user) => {
+    try {
+      setLoading(true);
+      let newUser = {
+        email: user.email,
+        username: user.username,
+        password: user.password,
+        name: {
+          firstname: user.firstname,
+          lastname: user.lastname,
+        },
+        address: {
+          city: user.city,
+          street: user.street,
+          number: user.number,
+          zipcode: user.zipcode,
+          geolocation: {
+            lat: user.geolocationLat,
+            long: user.geolocationLong,
+          },
+        },
+        phone: user.phone,
+      };
+
+      createUser(newUser);
+      setLoading(false);
+      setMessageUpdateUser({msg:"Add New User, Success!", color: 'text-green-500'});
+
+    } catch (error) {
+      setLoading(false);
+      setMessageUpdateUser({msg:"Add New User, Gagal!", color: 'text-red-500'});
+    }
+  };
+
   return (
     <div>
       {loading && <Loader />}
       <form
-        onSubmit={handleSubmit(login)}
+        onSubmit={handleSubmit(createNewUser)}
         className="flex flex-col w-full max-w-[300px]"
       >
-        <h2 className="text-lg font-semibold pb-6 text-center">{title} Form</h2>
+        <h2 className="text-lg font-semibold pb-6 text-center">Form</h2>
 
         <input
           id="email"
@@ -36,7 +73,6 @@ export default function FormUser({ title, titleButton }) {
           id="username"
           type="text"
           required
-          defaultValue="mor_2314"
           placeholder="username"
           className="text-sm border px-3 py-2 my-2 focus:border-black"
           {...register("username", { required: true })}
@@ -49,7 +85,6 @@ export default function FormUser({ title, titleButton }) {
           id="password"
           type="password"
           required
-          defaultValue="83r5^_"
           placeholder="password"
           className="text-sm border px-3 py-2 focus:border-black"
           {...register("password", { required: true })}
@@ -62,7 +97,6 @@ export default function FormUser({ title, titleButton }) {
           id="firstname"
           type="text"
           required
-          defaultValue="mor_2314"
           placeholder="firstname"
           className="text-sm border px-3 py-2 my-2 focus:border-black"
           {...register("firstname", { required: true })}
@@ -75,7 +109,6 @@ export default function FormUser({ title, titleButton }) {
           id="lastname"
           type="text"
           required
-          defaultValue="mor_2314"
           placeholder="lastname"
           className="text-sm border px-3 py-2 my-2 focus:border-black"
           {...register("lastname", { required: true })}
@@ -88,7 +121,6 @@ export default function FormUser({ title, titleButton }) {
           id="city"
           type="text"
           required
-          defaultValue="mor_2314"
           placeholder="city"
           className="text-sm border px-3 py-2 my-2 focus:border-black"
           {...register("city", { required: true })}
@@ -101,7 +133,6 @@ export default function FormUser({ title, titleButton }) {
           id="street"
           type="text"
           required
-          defaultValue="mor_2314"
           placeholder="street"
           className="text-sm border px-3 py-2 my-2 focus:border-black"
           {...register("street", { required: true })}
@@ -114,7 +145,6 @@ export default function FormUser({ title, titleButton }) {
           id="number"
           type="number"
           required
-          defaultValue="mor_2314"
           placeholder="number"
           className="text-sm border px-3 py-2 my-2 focus:border-black"
           {...register("number", { required: true })}
@@ -127,7 +157,6 @@ export default function FormUser({ title, titleButton }) {
           id="zipcode"
           type="number"
           required
-          defaultValue="mor_2314"
           placeholder="zipcode"
           className="text-sm border px-3 py-2 my-2 focus:border-black"
           {...register("zipcode", { required: true })}
@@ -140,7 +169,6 @@ export default function FormUser({ title, titleButton }) {
           id="geolocationLat"
           type="text"
           required
-          defaultValue="mor_2314"
           placeholder="geolocationLat"
           className="text-sm border px-3 py-2 my-2 focus:border-black"
           {...register("geolocationLat", { required: true })}
@@ -153,7 +181,6 @@ export default function FormUser({ title, titleButton }) {
           id="geolocationLong"
           type="text"
           required
-          defaultValue="mor_2314"
           placeholder="geolocationLong"
           className="text-sm border px-3 py-2 my-2 focus:border-black"
           {...register("geolocationLong", { required: true })}
@@ -166,7 +193,6 @@ export default function FormUser({ title, titleButton }) {
           id="phone"
           type="text"
           required
-          defaultValue="mor_2314"
           placeholder="phone"
           className="text-sm border px-3 py-2 my-2 focus:border-black"
           {...register("phone", { required: true })}
@@ -179,9 +205,13 @@ export default function FormUser({ title, titleButton }) {
           type="submit"
           className="text-sm border font-semibold mt-5 py-2 px-6 hover:bg-green-200"
         >
-          {titleButton}
+          Add New User
         </button>
+        <span className={`${messageUpdateUser.color} pb-3 pt-1 text-[9px]`}>
+            {messageUpdateUser.msg}
+          </span>
       </form>
     </div>
   );
 }
+
