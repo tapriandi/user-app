@@ -9,7 +9,7 @@ export default function CardUser({
   onClickDelete,
 }) {
   return (
-    <div className={`text-sm p-2 m-1 rounded-md border ${className}`}>
+    <div className={`text-sm p-2 m-1 h-auto rounded-md border ${className}`}>
       <p className="py-1">
         {name.firstname} {name.lastname}
       </p>

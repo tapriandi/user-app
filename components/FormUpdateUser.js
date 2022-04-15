@@ -53,7 +53,7 @@ export default function FormUpdateUser({ id, title, titleButton }) {
       {loading && <Loader />}
       <form
         onSubmit={handleSubmit(createNewUser)}
-        className="flex flex-col w-full max-w-[300px]"
+        className="flex flex-col w-full"
       >
         <h2 className="text-lg font-semibold pb-6 text-center">Form</h2>
 

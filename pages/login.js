@@ -23,8 +23,7 @@ export default function Login() {
         username: form.username,
         password: form.password,
       });
-      localStorage.setItem("username", form.username);
-      localStorage.setItem("password", form.password);
+      document.cookie()
       setLoading(false);
       setUserLogin(log);
       setMessageLogin({msg:"Login Sukses!", color: 'text-green-400'});
