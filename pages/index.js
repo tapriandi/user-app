@@ -1,23 +1,24 @@
 import Head from "next/head";
-import axios from "axios";
-import Link from "next/link";
-import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
+import { useState, useEffect } from "react";
+import { useStoreState, useStoreActions } from "easy-peasy";
 import { getUsers, getUser, deleteUser } from "services/users";
 import Close from "components/CloseBtn";
 import Loader from "components/Loader";
+import Header from "components/Header";
 import CardUser from "components/CardUser";
-import FormAddUser from "components/FormAddUser";
-import FormUpdateUser from "components/FormUpdateUser";
+import FormUser from "components/FormUser";
 import CardDetail from "components/CardDetail";
 
 export default function Home() {
+  const { users } = useStoreState((state) => state);
+  const { setUsers } = useStoreActions((action) => action);
   const router = useRouter();
-  const [users, setUsers] = useState([]);
   const [user, setUser] = useState([]);
   const [detail, setDetail] = useState(false);
-  const [formAddOpen, setFormAddOpen] = useState(false);
-  const [formUpdateOpen, setFormUpdateOpen] = useState(false);
+  const [IdUserUpdate, setIdUserUpdate] = useState();
+  const [openFormUser, setOpenFormUser] = useState(false);
+  const [formUserTitle, setFormUserTitle] = useState("");
   const [loading, setLoading] = useState();
 
   const getUsersData = async () => {
@@ -28,18 +29,16 @@ export default function Home() {
   };
 
   const logout = () => {
-    localStorage.removeItem("username");
-    localStorage.removeItem("password");
+    document.cookie = `token=''; path='';expires=${new Date().toUTCString()}`
     router.push("/login");
   };
 
   const handleDetail = async (id) => {
-    setFormUpdateOpen(false);
-    setFormAddOpen(false);
-    setUser([]);
-    let temp = [];
+    setOpenFormUser(false);
     setLoading(true);
     setDetail(true);
+    setUser([]);
+    let temp = [];
     const { data } = await getUser(id);
     temp.push(data);
     setUser(temp);
@@ -52,55 +51,45 @@ export default function Home() {
   };
 
   const handleDelete = (id) => {
-    if (id?.length > 0) {
-      setLoading(true);
-      deleteUser(id);
-      setLoading(false);
-    }
+    const newUsers = users.filter((e) => e.id !== id);
+    setUsers(newUsers);
   };
 
   const handleCreate = () => {
     setDetail(false);
-    setFormUpdateOpen(false);
-    setFormAddOpen(true);
+    setOpenFormUser(true);
+    setFormUserTitle("Add User");
   };
 
-  const handleUpdate = () => {
+  const handleUpdate = (id) => {
     setDetail(false);
-    setFormAddOpen(false);
-    setFormUpdateOpen(true);
+    setOpenFormUser(true);
+    setIdUserUpdate(id);
+    setFormUserTitle("Update User User");
   };
 
   useEffect(() => {
     getUsersData();
   }, []);
 
+  console.log(users, "home <====");
+
   return (
     <div className="relative min-h-screen pb-20 px-[5%] md:px-0">
       {loading && <Loader />}
       <Head title="Home" />
+      <Header
+        onClickAdd={() => handleCreate()}
+        onClickLogout={() => logout()}
+      />
 
-      <div className="flex w-full items-center border-b py-5 mb-8 space-x-10 md:px-[4%] md:text-sm md:space-x-5">
-        <Link href="/" >
-          <a className="text-base font-bold hover:underline">User App</a>
-        </Link>
-        <p
-          className="cursor-pointer hover:underline"
-          onClick={() => handleCreate()}
-        >
-          Add New User
-        </p>
-        <p className="cursor-pointer hover:underline" onClick={() => logout()}>
-          logout
-        </p>
-      </div>
-
-      <div className={`relative flex md:flex-col space-x-5 md:space-x-0 md:px-[4%]`}>
+      <div
+        className={`relative flex md:flex-col space-x-5 md:space-x-0 md:px-[4%]`}
+      >
+        {/* card users */}
         <div
-          className={`flex flex-wrap ${
-            detail || formAddOpen || formUpdateOpen
-              ? "w-[70%] md:w-full"
-              : "w-full"
+          className={`flex flex-wrap h-full items-start ${
+            detail || openFormUser ? "w-[65%] md:w-full" : "w-full"
           }`}
         >
           {users.map((e) => (
@@ -118,11 +107,12 @@ export default function Home() {
 
         <div
           className={`${
-            detail || formAddOpen || formUpdateOpen
-              ? "w-[30%] md:w-full md:h-screen md:bg-[#00000060]"
+            detail || openFormUser
+              ? "w-[36%] md:w-full md:h-screen md:bg-[#00000060]"
               : "hidden"
-          } md:fixed md:bg-white md:border md:top-0 md:left-0 md:z-10 md:py-4 md:px-[10%] sm:px-[5%]`}
+          } md:fixed md:border md:top-0 md:left-0 md:z-10 md:py-4 md:px-[10%] sm:px-[5%]`}
         >
+          {/* detail user */}
           <div className="w-full md:bg-white md:p-5">
             {detail && (
               <>
@@ -145,7 +135,9 @@ export default function Home() {
                         lat={e.address.geolocation.lat}
                         long={e.address.geolocation.long}
                         phone={e.phone}
-                        className="!border-0 w-1/4 md:w-1/2 sm:w-full"
+                        className="!border-0 w-full"
+                        onClickUpdate={() => handleUpdate(e.id)}
+                        onClickDelete={() => handleDelete(e.id)}
                       />
                     ))}
                   </div>
@@ -153,20 +145,11 @@ export default function Home() {
               </>
             )}
 
-            {formAddOpen && (
+            {openFormUser && (
               <>
                 <Close onClick={() => setFormAddOpen(false)} />
                 <div className="w-full">
-                  <FormAddUser />
-                </div>
-              </>
-            )}
-
-            {formUpdateOpen && (
-              <>
-                <Close onClick={() => setFormUpdateOpen(false)} />
-                <div className="w-full">
-                  <FormUpdateUser id={id} />
+                  <FormUser title={formUserTitle} id={IdUserUpdate} />
                 </div>
               </>
             )}
@@ -176,4 +159,3 @@ export default function Home() {
     </div>
   );
 }
-

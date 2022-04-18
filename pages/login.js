@@ -19,19 +19,19 @@ export default function Login() {
   const login = async (form) => {
     setLoading(true);
     try {
-      const log = await axios.post("https://fakestoreapi.com/auth/login", {
+      const {data} = await axios.post("https://fakestoreapi.com/auth/login", {
         username: form.username,
         password: form.password,
       });
-      document.cookie()
+      document.cookie = `token=${data.token}; path=/`
       setLoading(false);
-      setUserLogin(log);
-      setMessageLogin({msg:"Login Sukses!", color: 'text-green-400'});
+      setUserLogin(data);
+      setMessageLogin({msg:"Login Sukses!", color: 'text-green-600'});
       router.push("/");
     } catch (error) {
       console.log(error);
       setLoading(false);
-      setMessageLogin({msg:"Login Gagal!", color: "text-reed-500"});
+      setMessageLogin({msg:"Login Gagal!", color: "text-red-600"});
     } finally {
       setLoading(false);
     }
